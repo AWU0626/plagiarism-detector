@@ -30,21 +30,27 @@ public class PlagiarismDetector {
 			throw new IllegalArgumentException();
 
 		Map<String, Integer> numberOfMatches = new HashMap<String, Integer>();
+		Map<String, Set<String>> filePhrasesMap = new HashMap<>();
+
+		for (String file : files) {
+			filePhrasesMap.put(file, createPhrases(dirName + "/" + file, windowSize));
+		}
 
 		int len = files.length;
 		// compare each file to all other files
 		for (int i = 0; i < len; i++) {
 			String file1 = files[i];
+			Set<String> file1Phrases = filePhrasesMap.get(file1);
+
+			if (file1Phrases == null)
+				return null;
 
 			for (int j = i + 1; j < len; j++) {
 
 				String file2 = files[j];
+				Set<String> file2Phrases = filePhrasesMap.get(file2);
 
-				// create phrases for each file
-				Set<String> file1Phrases = createPhrases(dirName + "/" + file1, windowSize);
-				Set<String> file2Phrases = createPhrases(dirName + "/" + file2, windowSize);
-
-				if (file1Phrases == null || file2Phrases == null)
+				if (file2Phrases == null)
 					return null;
 
 				// find matching phrases in each Set
