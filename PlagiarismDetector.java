@@ -2,6 +2,7 @@
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -9,6 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 public class PlagiarismDetector {
 
@@ -71,21 +73,18 @@ public class PlagiarismDetector {
 		if (filename == null)
 			return null;
 
-		List<String> words = new ArrayList<String>();
+		List<String> words = new ArrayList<>();
+		Pattern pattern = Pattern.compile("[^a-zA-Z]");
 
-		try {
-			BufferedReader in = new BufferedReader(new FileReader(filename));
+		try (BufferedReader in = new BufferedReader(new FileReader(filename))) {
 			String line;
 			while ((line = in.readLine()) != null) {
-				String[] tokens = line.split(" ");
+				String[] tokens = line.split("\\s+");
 				for (String token : tokens) {
-					// this strips punctuation and converts to uppercase
-					words.add(token.replaceAll("[^a-zA-Z]", "").toUpperCase());
+					words.add(pattern.matcher(token).replaceAll("").toUpperCase());
 				}
 			}
-
-			in.close();
-		} catch (Exception e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 			return null;
 		}
